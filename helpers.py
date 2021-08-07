@@ -2,6 +2,7 @@
 from colorama import Fore, Back, Style
 import termtables as tt
 from moviepy.editor import *
+from datetime import datetime
 
 
 def input_selection(options: dict, message="Select from these options: ", default=None, error_message="Please insert from the available options."):
@@ -124,3 +125,7 @@ def input_range(message="Please insert a value: ", default=None, minimum=None, m
 def print_error(message: str):
     msg = f"{Fore.WHITE + Back.RED}[ERROR]{Style.RESET_ALL} {message}"
     print(msg)
+
+
+def current_time():
+    return round(datetime.utcnow().timestamp() * 1000)
