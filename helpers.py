@@ -94,17 +94,23 @@ class Watchlist():
         self.update_counters(f)
 
     def remove_file(self, f: WatchlistFile):
-        print(f"Index of file: {self.files.index(f)}")
-        pass
+        self.files.pop(self.files.index(f))
+        self.update_counters(f)
 
-    def update_counters(self, f: WatchlistFile):
-        if f.archived:
-            self.archived_count += 1
-        if f.uploaded:
-            self.uploaded_count += 1
+    def update_counters(self, f: WatchlistFile, addition=True):
+        if addition:
+            if f.archived:
+                self.archived_count += 1
+            if f.uploaded:
+                self.uploaded_count += 1
+        else:
+            if f.archived:
+                self.archived_count -= 1
+            if f.uploaded:
+                self.uploaded_count -= 1
 
     def __str__(self):
-        if len(files) == 0:
+        if len(self.files) == 0:
             return ""
 
         header = ["Filepath", "Archived", "Uploaded"]
@@ -112,7 +118,7 @@ class Watchlist():
         for f in self.files:
             data.append([f.filepath, f.archived, f.uploaded])
 
-        stats = f"\nTotal: {len(files)} Archived: {self.archived_count} Uploaded: {self.uploaded_count}"
+        stats = f"\nTotal: {len(self.files)} Archived: {self.archived_count} Uploaded: {self.uploaded_count}"
         return tt.to_string(data, header=header) + stats
 
     def __sizeof__(self):
@@ -333,7 +339,8 @@ def get_videos_in_directory():
     for folder, sub_folders, dir_files in os.walk(VIDEO_FOLDER):
         for f in dir_files:
             if f[-4:] == '.mp4':
-                videos.append((f, os.path.realpath(f)))
+                videos.append((f, os.path.join(os.path.abspath(folder), f)))
+
     return videos
 
 

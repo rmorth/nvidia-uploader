@@ -130,8 +130,13 @@ if __name__ == "__main__":
     parser.add_argument('--archive-all', action="store_true",
                         help="archive every video")
     parser.add_argument('--no-info', action="store_true")
+    parser.add_argument('-s', '--status', action="store_true")
 
     args = parser.parse_args()
+
+    if args.status:
+        print(read_watchlist_file())
+        exit()
 
     if args.archive:
         description = "This will only archive the ones that haven't been archived.\nIf you wish to force the archival of every uploaded video use --force-archive."
