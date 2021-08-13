@@ -44,18 +44,18 @@ def get_authenticated_service():
                  http=credentials.authorize(httplib2.Http()))
 
 
-def initialize_upload(youtube, clip_preferences):
+def initialize_upload(youtube, clip):
     tags = "Tag1,Tag2"  # TODO: add tags as preference
 
     body = dict(
         snippet=dict(
-            title=clip_preferences['title'],
-            description=clip_preferences['description'],
+            title=clip.title,
+            description=clip.description,
             tags=tags,
             categoryId="20"
         ),
         status=dict(
-            privacyStatus=clip_preferences['privacy_status']
+            privacyStatus=clip.privacy_status
         )
     )
 
@@ -63,10 +63,10 @@ def initialize_upload(youtube, clip_preferences):
         part=",".join(body.keys()),
         body=body,
         media_body=MediaFileUpload(
-            clip_preferences['clip_name'], chunksize=-1, resumable=True)
+            clip.clip, chunksize=-1, resumable=True)
     )
 
-    resumable_upload(insert_request)
+    # resumable_upload(insert_request)
 
 
 def resumable_upload(insert_request):
