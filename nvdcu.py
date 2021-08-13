@@ -124,15 +124,22 @@ if __name__ == "__main__":
 
     parser.add_argument(
         '-i', '--ignore', '--ignore-uploaded', action="store_true")
-    parser.add_argument('-a', '--archive',
-                        '--archive-uploaded', action="store_true", help="archive uploaded videos")
+    parser.add_argument('-a', '--archive-uploaded',
+                        action="store_true", help="archive uploaded videos")
     parser.add_argument('-c', '--config', action="store_true")
     parser.add_argument('--archive-all', action="store_true",
                         help="archive every video")
-    parser.add_argument('--no-info', action="store_true")
-    parser.add_argument('-s', '--status', action="store_true")
+    parser.add_argument('--no-info', action="store_true",
+                        help="ommits info messages")
+    parser.add_argument('-s', '--status', action="store_true",
+                        help="prints watchlist status")
+    parser.add_argument('--reset', action="store_true",
+                        help="reset watchlist file, see --clean")
+    parser.add_argument('--clean', action="store_true",
+                        help="clean missing files from watchlist file")
 
     args = parser.parse_args()
+    print(args)
 
     if args.status:
         print(read_watchlist_file())
@@ -170,6 +177,20 @@ if __name__ == "__main__":
         print_info("Configuration mode...")
         exit()
 
+    if args.reset:
+        print_info("Resetting watchlist file...")
+        write_watchlist_file(Watchlist())
+        exit()
+
+    if args.clean:
+        print_info("Cleaning watchlist file...")
+        watchlist = read_watchlist_file()
+        for f in watchlist.files:
+            if f.missing:
+                watchlist.remove_file(f)
+        write_watchlist_file(watchlist)
+        exit()
+
     if args.ignore:
         print_info("Ignoring uploaded files...")
         # NO BREAK
@@ -197,9 +218,11 @@ if __name__ == "__main__":
         # Run checkup
         checkup(video_to_check, watchlist, args.ignore)
 
-    write_watchlist_file(watchlist)
     # yt_clip = get_clip_preferences(new_clip,clip_name = clip_name, clip_duration = clip.duration)
     # yt_clip.write_clip_file(fps=60)
 
     # auth_service = get_authenticated_service()
     # yt_clip.upload(auth_service=auth_service)
+
+    # Update watchlist
+    write_watchlist_file(watchlist)
