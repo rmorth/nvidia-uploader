@@ -1,8 +1,9 @@
 """Configuration file"""
+
+# Youtube API Related
+
 # Client secrets file location
 CLIENT_SECRETS_FILE = "client_secrets.json"
-
-# Youtube API Relateda
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
@@ -13,4 +14,13 @@ YOUTUBE_API_VERSION = "v3"
 # Clips
 DEFAULT_CLIP_MODE = "from_end"
 DEFAULT_NUM_THREADS = 4  # used in processing clip creation
+DEFAULT_PRIVACY_STATUS = "unlisted"
+DEFAULT_TITLE = "Default Title"
+DEFAULT_DESCRIPTION = "Default description.\n\nUploaded with nvdcu.py :)"
+
 SAVE_CLIPS_TO = "clips/"
+VIDEO_FOLDER = "samples/"
+ARCHIVE_FOLDER = "archive/"
+
+COMPRESS_FPS = 30
+COMPRESS_RES_HEIGHT = 720
