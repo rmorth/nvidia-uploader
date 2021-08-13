@@ -1,5 +1,10 @@
 # NVIDIA Clip Uploader
+
 Upload clips from NVIDIA GeForce Experience.
+
+## How it works
+
+_TODO_
 
 ## Goal
 
@@ -10,7 +15,7 @@ With GeForce experience it's easy to create clips with [instant replay](https://
 GeForce Experience has problems when it comes to keeping you logged in into Google for some reason and it started to bug me. On top of this, the usual process of uploading clips for me was:
 
 1. Make a bunch of instant replays
-2. *Time passes...*
+2. _Time passes..._
 3. Filter (delete) through a bunch of unwanted clips
 4. Upload the clips you liked
 
@@ -21,5 +26,4 @@ An option for already uploaded clips could be deletion or even archival (compres
 ## Resources
 
 - [Moviepy](https://github.com/Zulko/moviepy).
--  [YouTube API for videos](https://developers.google.com/resources/api-libraries/documentation/youtube/v3/python/latest/youtube_v3.videos.html) and [video upload example](https://developers.google.com/youtube/v3/guides/uploading_a_video).
-
+- [YouTube API for videos](https://developers.google.com/resources/api-libraries/documentation/youtube/v3/python/latest/youtube_v3.videos.html) and [video upload example](https://developers.google.com/youtube/v3/guides/uploading_a_video).
