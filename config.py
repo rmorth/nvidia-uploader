@@ -16,7 +16,8 @@ DEFAULT_CLIP_MODE = "from_end"
 DEFAULT_NUM_THREADS = 4  # used in processing clip creation
 DEFAULT_PRIVACY_STATUS = "unlisted"
 DEFAULT_TITLE = "Default Title"
-DEFAULT_DESCRIPTION = "Default description.\n\nUploaded with nvdcu.py :)"
+DEFAULT_DESCRIPTION = "No description given.\n\nUploaded with nvdcu.py :)"
+DEFAULT_TAGS = "Gaming"  # separated by commas, Tag1,Tag2,...
 
 SAVE_CLIPS_TO = "clips/"
 VIDEO_FOLDER = "samples/"
