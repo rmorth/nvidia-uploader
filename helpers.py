@@ -31,8 +31,8 @@ class YoutubeClip():
             raise Exception("Invalid youtube clip instance.")
 
     def write_clip_file(self, fps=60):
-        self.clip.write_videofile(self.clip_file_name, fps=fps,
-                                  threads=self.number_of_threads)
+        self.clip.subclip(self.time_from_end).write_videofile(self.clip_file_name, fps=fps,
+                                                              threads=self.number_of_threads)
 
     def upload(self, auth_service):
         try:
@@ -95,7 +95,7 @@ class Watchlist():
 
     def remove_file(self, f: WatchlistFile):
         self.files.pop(self.files.index(f))
-        self.update_counters(f)
+        self.update_counters(f, addition=False)
 
     def update_counters(self, f: WatchlistFile, addition=True):
         if addition:
@@ -356,7 +356,14 @@ def delete_video(f: WatchlistFile, watchlist: Watchlist):
         print_info("Successfully deleted the video.")
 
 
+def preview_video(f: WatchlistFile):
+    if sys.platform == 'linux':
+        os.system(f'xdg-open "{f.filepath}"')
+    elif sys.platform == 'win32':
+        os.startfile(f.filepath)
+    else:
+        raise Exception("Preview is not available for your OS.")
+
+
 if __name__ == "__main__":  # DEBUG
-    files = read_watchlist_file()
-    # os.system(f'totem "{files.files[0].filepath}"')
-    write_watchlist_file(files)
+    print(sys.platform)
