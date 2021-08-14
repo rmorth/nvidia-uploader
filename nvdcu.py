@@ -1,6 +1,6 @@
 import argparse
 from moviepy.editor import VideoFileClip
-from helpers import input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video
+from helpers import input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video, preview_video
 from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, SAVE_CLIPS_TO, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
 from upload import get_authenticated_service, initialize_upload
 
@@ -8,7 +8,9 @@ MAX_THREADS = 8  # FIXME: yeet bad code
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def get_clip_preferences(vdf_clip: VideoFileClip, clip_name: str, clip_duration: float):
+def get_clip_preferences(filepath: str):
+
+    vdf_clip = VideoFileClip(filepath)
 
     title = input("Insert the title for the clip: ")
     if not title:
@@ -19,9 +21,9 @@ def get_clip_preferences(vdf_clip: VideoFileClip, clip_name: str, clip_duration:
         description = 'Default description.\n\nUploaded with nvdcu.py :)'
 
     # get time starting from the end (last 5 seconds)
-    error = f"The clip's duration is {clip_duration}s, please insert a valid float.\n"
+    error = f"The clip's duration is {vdf_clip.duration}s, please insert a valid float.\n"
     time_end = -input_range(message="Time in seconds from the end: ",
-                            minimum=0, maximum=clip_duration, integer=False, errors=(None, None, error))
+                            minimum=0, maximum=vdf_clip.duration, integer=False, errors=(None, None, error))
 
     # get number of threads to be used in the creation of the clip
     error = f"The maximum number of threads allowed is {MAX_THREADS}, please insert a valid integer.\n"
@@ -35,7 +37,7 @@ def get_clip_preferences(vdf_clip: VideoFileClip, clip_name: str, clip_duration:
         options=options, message=message, default='un')]
 
     clip = YoutubeClip(vdf_clip, title=title, description=description, time_from_end=time_end,
-                       number_of_threads=thread_number, privacy_status=privacy_status, clip_file_name=clip_name.format(current_time()))
+                       number_of_threads=thread_number, privacy_status=privacy_status, clip_file_name=title+".mp4")
     print(clip)
 
     return clip
@@ -74,7 +76,7 @@ def archive_video(f: WatchlistFile):
     f.archived = True
 
 
-def checkup(f: WatchlistFile, watchlist: Watchlist, ignore_uploaded=False):
+def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploaded=False):
 
     print_info(f"Running checkup for: {f.filename}")
 
@@ -114,8 +116,21 @@ def checkup(f: WatchlistFile, watchlist: Watchlist, ignore_uploaded=False):
         if confirm == 'n':
             return
 
+        message = "Do you wish to open a preview of this video? "
+        confirm = input_selection(options, message, default="n")
+        if confirm == 'y':
+            preview_video(f)
+
         # Clip preferences
+        clip = get_clip_preferences(f.filepath)
+        clip.write_clip_file()
+
         # Upload video
+        clip.upload(auth_service)
+        f.uploaded = True
+
+        # run other checks
+        checkup(f, watchlist, auth_service, ignore_uploaded)
 
 
 if __name__ == "__main__":
@@ -139,13 +154,12 @@ if __name__ == "__main__":
                         help="clean missing files from watchlist file")
 
     args = parser.parse_args()
-    print(args)
 
     if args.status:
         print(read_watchlist_file())
         exit()
 
-    if args.archive:
+    if args.archive_uploaded:
         description = "This will only archive the ones that haven't been archived.\nIf you wish to force the archival of every uploaded video use --force-archive."
         message = "Are you sure you want to archive already uploaded files? "
         options = {"y": "yes", "n": "no"}
@@ -195,6 +209,9 @@ if __name__ == "__main__":
         print_info("Ignoring uploaded files...")
         # NO BREAK
 
+    # Youtube API
+    auth_service = get_authenticated_service()
+
     # Check files in directory VIDEOS_FOLDER:
     videos = get_videos_in_directory()
 
@@ -216,7 +233,7 @@ if __name__ == "__main__":
             watchlist.add_file(video_to_check)
 
         # Run checkup
-        checkup(video_to_check, watchlist, args.ignore)
+        checkup(video_to_check, watchlist, auth_service, args.ignore)
 
     # yt_clip = get_clip_preferences(new_clip,clip_name = clip_name, clip_duration = clip.duration)
     # yt_clip.write_clip_file(fps=60)

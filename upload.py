@@ -3,7 +3,7 @@ import httplib2
 import http.client
 import sys
 import time
-from config import CLIENT_SECRETS_FILE, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, YOUTUBE_UPLOAD_SCOPE
+from config import CLIENT_SECRETS_FILE, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, YOUTUBE_UPLOAD_SCOPE, DEFAULT_TAGS
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
@@ -45,7 +45,7 @@ def get_authenticated_service():
 
 
 def initialize_upload(youtube, clip):
-    tags = "Tag1,Tag2"  # TODO: add tags as preference
+    tags = DEFAULT_TAGS
 
     body = dict(
         snippet=dict(
@@ -58,12 +58,12 @@ def initialize_upload(youtube, clip):
             privacyStatus=clip.privacy_status
         )
     )
-
+    print(clip.clip_file_name)
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
         media_body=MediaFileUpload(
-            clip.clip, chunksize=-1, resumable=True)
+            clip.clip_file_name, chunksize=-1, resumable=True)
     )
 
     # resumable_upload(insert_request)
