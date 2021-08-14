@@ -2,10 +2,6 @@
 
 Upload clips from NVIDIA GeForce Experience.
 
-## How it works
-
-_TODO_
-
 ## Goal
 
 First of all, it's mandatory to state here that this project was made out of enjoyment and curiosity.
@@ -22,6 +18,16 @@ GeForce Experience has problems when it comes to keeping you logged in into Goog
 The goal of this script is for it to check the folder in which clips are stored, see which ones haven't been uploaded and prompt you if you wish to upload.
 
 An option for already uploaded clips could be deletion or even archival (compressed).
+
+## How it works
+
+_TODO_
+
+## Requirements
+
+- **Python** (tested with 3.7.3)
+- **Moviepy**
+- *TODO*
 
 ## Resources
 
