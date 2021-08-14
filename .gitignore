@@ -3,3 +3,4 @@ __pycache__/
 *.mp4
 client_secrets.json
 nvdcu.py-oauth2.json
+watchlist.txt
