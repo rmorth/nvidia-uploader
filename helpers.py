@@ -1,7 +1,9 @@
 """Helper functions that can be used throughout the program."""
-from colorama import Fore, Back, Style
+import os
+import sys
 import termtables as tt
-from moviepy.editor import *
+from colorama import Fore, Back, Style
+from moviepy.editor import VideoFileClip
 from datetime import datetime
 from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, DEFAULT_PRIVACY_STATUS, DEFAULT_DESCRIPTION, DEFAULT_TITLE, SAVE_CLIPS_TO, VIDEO_FOLDER
 from upload import initialize_upload
@@ -362,7 +364,7 @@ def preview_video(f: WatchlistFile):
     elif sys.platform == 'win32':
         os.startfile(f.filepath)
     else:
-        raise Exception("Preview is not available for your OS.")
+        raise Exception("Video preview isn't available in your OS.")
 
 
 if __name__ == "__main__":  # DEBUG

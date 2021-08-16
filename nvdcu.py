@@ -1,4 +1,5 @@
 import argparse
+import os
 from moviepy.editor import VideoFileClip
 from helpers import input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video, preview_video
 from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, SAVE_CLIPS_TO, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
@@ -43,21 +44,20 @@ def get_clip_preferences(filepath: str):
     return clip
 
 
-def archive_uploaded(force=False):
+def archive_uploaded(force=False, folder=ARCHIVE_FOLDER):
     print_info("Archiving uploaded files...")
     watchlist = read_watchlist_file()
 
     for f in watchlist.files:
         if not f.missing:
             if force or f.uploaded and not f.archived:
-                archive_video(f)
+                archive_video(f, ARCHIVE_FOLDER)
 
     # Update watchlist file
     write_watchlist_file(watchlist)
-    print_info("Done.")
 
 
-def archive_video(f: WatchlistFile):
+def archive_video(f: WatchlistFile, folder=ARCHIVE_FOLDER):
     print_info(f"Archiving video: {f.filepath}")
 
     vdf = VideoFileClip(f.filepath)
@@ -70,7 +70,8 @@ def archive_video(f: WatchlistFile):
         vdf = vdf.set_fps(COMPRESS_FPS)
 
     print("After:", vdf.filename, vdf.fps, vdf.size, "\n")
-    archived_vdf = vdf.write_videofile(ARCHIVE_FOLDER + f.filename)
+
+    vdf.write_videofile(folder + f.filename)
     vdf.close()
 
     f.archived = True
@@ -100,7 +101,7 @@ def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploade
                 options, message, default="n", description=description)
 
             if confirm == "a":
-                archive_video(f, watchlist)
+                archive_video(f)
             elif confirm == "d":
                 delete_video(f, watchlist)
 
@@ -144,6 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--config', action="store_true")
     parser.add_argument('--archive-all', action="store_true",
                         help="archive every video")
+    parser.add_argument('--archive-dir', help="overwrite archive directory")
     parser.add_argument('--no-info', action="store_true",
                         help="ommits info messages")
     parser.add_argument('-s', '--status', action="store_true",
@@ -158,6 +160,17 @@ if __name__ == "__main__":
     if args.status:
         print(read_watchlist_file())
         exit()
+
+    if args.archive_dir:
+        if not os.path.exists(args.archive_dir):
+            print(f"Specified directory is not valid: {args.archive_dir}")
+            exit()
+
+        if args.archive_dir[-1] != os.path.sep:
+            args.archive_dir = args.archive_dir + os.path.sep
+        print_info(f"Overwriting archive directory with: {args.archive_dir}")
+
+        archive_uploaded(directory=args.archive_dir)
 
     if args.archive_uploaded:
         description = "This will only archive the ones that haven't been archived.\nIf you wish to force the archival of every uploaded video use --force-archive."

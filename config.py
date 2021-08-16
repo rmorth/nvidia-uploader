@@ -19,9 +19,9 @@ DEFAULT_TITLE = "Default Title"
 DEFAULT_DESCRIPTION = "No description given.\n\nUploaded with nvdcu.py :)"
 DEFAULT_TAGS = "Gaming"  # separated by commas, Tag1,Tag2,...
 
-SAVE_CLIPS_TO = "clips/"
-VIDEO_FOLDER = "samples/"
-ARCHIVE_FOLDER = "archive/"
+SAVE_CLIPS_TO = "clips\\"
+VIDEO_FOLDER = "samples\\"
+ARCHIVE_FOLDER = "archive\\"
 
 COMPRESS_FPS = 30
 COMPRESS_RES_HEIGHT = 720
