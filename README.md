@@ -25,9 +25,16 @@ _TODO_
 
 ## Requirements
 
-- **Python** (tested with 3.7.3)
+Used **python** (tested with 3.7.3 and 3.9.6).
+
+_Install these requirements via:_ `pip install -r requirements.txt`
+
 - **Moviepy**
-- *TODO*
+- **google-api-python-client**
+- **httplib2**
+- **termtables**
+- **colorama**
+- **oauth2client**
 
 ## Resources
 
