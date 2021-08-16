@@ -35,6 +35,7 @@ _Install these requirements via:_ `pip install -r requirements.txt`
 - **termtables**
 - **colorama**
 - **oauth2client**
+- **ffmpeg**
 
 ## Resources
 
