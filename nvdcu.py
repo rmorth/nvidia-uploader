@@ -107,7 +107,8 @@ Nothing has been done to this video.
                 delete_video(f, watchlist)
                 return
             elif confirm == 'i':
-                return  # IGNORE
+                f.ignored = True
+                return
             elif confirm == 's':
                 return
 
@@ -142,7 +143,8 @@ This video has been uploaded and archived.
                 if confirm == 'p':
                     preview_video(f)
                 elif confirm == 'i':
-                    return  # IGNORE
+                    f.ignored = True
+                    return
                 elif confirm == 's':
                     return
 
@@ -172,7 +174,8 @@ This video has been uploaded.
                 if confirm == 'p':
                     preview_video(f)
                 elif confirm == 'i':
-                    pass  # IGNORE
+                    f.ignored = True
+                    return
                 elif confirm == 's':
                     return
 

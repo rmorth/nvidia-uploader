@@ -59,10 +59,11 @@ class YoutubeClip():
 
 
 class WatchlistFile():
-    def __init__(self, filepath, archived=False, uploaded=False, missing=False):
+    def __init__(self, filepath, ignored=False, archived=False, uploaded=False, missing=False):
         self.filepath = filepath
         self.relpath = os.path.relpath(filepath)
         self.filename = os.path.basename(filepath)
+        self.ignored = ignored
         self.archived = archived
         self.uploaded = uploaded
         self.missing = missing
@@ -72,6 +73,7 @@ class WatchlistFile():
             ["Filepath", self.filepath],
             ["Relpath", self.relpath],
             ["Filename", self.filename],
+            ["Ignored?", self.ignored],
             ["Archived?", self.archived],
             ["Uploaded?", self.uploaded]
         ]
@@ -82,6 +84,7 @@ class Watchlist():
     def __init__(self, files=None):
         self.archived_count = 0
         self.uploaded_count = 0
+        self.ignored_count = 0
         self.files = []
         if files:
             for f in files:
@@ -89,7 +92,7 @@ class Watchlist():
                 self.add_file(f)
 
     def nonmissing_files(self):
-        return filter(lambda f: f.missing == False, self.files)
+        return filter(lambda f: f.missing == False and f.ignored == False, self.files)
 
     def add_file(self, f: WatchlistFile):
         self.files.append(f)
@@ -101,11 +104,15 @@ class Watchlist():
 
     def update_counters(self, f: WatchlistFile, addition=True):
         if addition:
+            if f.ignored:
+                self.ignored_count += 1
             if f.archived:
                 self.archived_count += 1
             if f.uploaded:
                 self.uploaded_count += 1
         else:
+            if f.ignored:
+                self.ignored_count -= 1
             if f.archived:
                 self.archived_count -= 1
             if f.uploaded:
@@ -115,12 +122,12 @@ class Watchlist():
         if len(self.files) == 0:
             return ""
 
-        header = ["Filepath", "Archived", "Uploaded"]
+        header = ["Filepath", "Ignored", "Archived", "Uploaded"]
         data = []
         for f in self.files:
-            data.append([f.filepath, f.archived, f.uploaded])
+            data.append([f.filepath, f.ignored, f.archived, f.uploaded])
 
-        stats = f"\nTotal: {len(self.files)} Archived: {self.archived_count} Uploaded: {self.uploaded_count}"
+        stats = f"\nTotal: {len(self.files)} Ignored: {self.ignored_count} Archived: {self.archived_count} Uploaded: {self.uploaded_count}"
         return tt.to_string(data, header=header) + stats
 
     def __sizeof__(self):
@@ -297,7 +304,7 @@ def read_watchlist_file():
         lines = list(filter(lambda line: len(line) > 0, data_file.readlines()))
 
         for line in lines:
-            f, archived, uploaded = line.split(sep=arg_separator)
+            f, ignored, archived, uploaded = line.split(sep=arg_separator)
 
             missing = False
             if not os.path.exists(f):
@@ -308,12 +315,14 @@ def read_watchlist_file():
             try:
                 archived = bool(int(archived))
                 uploaded = bool(int(uploaded))
+                ignored = bool(int(ignored))
             except Exception as e:
                 print_error(
-                    f"Error parsing watchlist file arguments! [f={f},a={archived},u={u}]")
+                    f"Error parsing watchlist file arguments! [f={f},i={ignored},a={archived},u={uploaded}]")
                 raise
 
-            files.add_file(WatchlistFile(f, archived, uploaded, missing))
+            files.add_file(WatchlistFile(
+                f, ignored, archived, uploaded, missing))
 
         data_file.seek(0)
 
@@ -330,7 +339,7 @@ def write_watchlist_file(watchlist: Watchlist):
 
     with open("watchlist.txt", "w+") as watchfile:
         for f in watchlist.files:
-            line = f"{f.filepath}{arg_separator}{int(f.archived)}{arg_separator}{int(f.uploaded)}\n"
+            line = f"{f.filepath}{arg_separator}{int(f.ignored)}{arg_separator}{int(f.archived)}{arg_separator}{int(f.uploaded)}\n"
             watchfile.write(line)
 
     print_info("Done.")
