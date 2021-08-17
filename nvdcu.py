@@ -78,49 +78,38 @@ def archive_video(f: WatchlistFile, folder=ARCHIVE_FOLDER):
 
 
 def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploaded=False):
-
+    # TODO: Implement ignoring
     print_info(f"Running checkup for: {f.filename}")
 
-    if f.uploaded and not ignore_uploaded:
-        if f.archived:
-            message = "This video has been uploaded and archived, do you wish to delete the original file? "
-            options = {"y": "yes", "n": "no"}
-            confirm = input_selection(
-                options, message, default="n")
-
-            if confirm == "n":
-                return
-            # Delete the video
-            delete_video(f)
-            return
-        else:
-            description = "- Archiving will compress the video and save it to ARCHIVE_FOLDER in your config.\n- Deleting will permanently delete the original video."
-            message = "Do you wish to archive or delete this video? "
-            options = {"a": "archive", "d": "delete", "n": "none"}
-            confirm = input_selection(
-                options, message, default="n", description=description)
-
-            if confirm == "a":
-                archive_video(f)
-            elif confirm == "d":
-                delete_video(f, watchlist)
-
-            return
-
     if not f.uploaded:
-        description = "You can upload it later."
-        message = "Do you wish to upload this video? "
-        options = {"y": "yes", "n": "no"}
-        confirm = input_selection(
-            options, message, default="n", description=description)
+        description = """Enter if you wish to:
+- Upload: go through the process of uploading this video
+- Preview: opens the video in your preferred player
+- Delete: permanently delete the video
+- Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
+- Skip: temporarily skip this video onto the next one
 
-        if confirm == 'n':
-            return
+Nothing has been done to this video.
+        """
+        message = "Please insert the action you'd like to take: "
 
-        message = "Do you wish to open a preview of this video? "
-        confirm = input_selection(options, message, default="n")
-        if confirm == 'y':
-            preview_video(f)
+        options = {"u": "upload video", "p": "preview video",
+                   "d": "delete video", 'i': 'ignore video', 's': 'skip video'}
+
+        confirm = None
+        while confirm != 'u':
+            confirm = input_selection(
+                options, message, default="s", description=description)
+
+            if confirm == 'p':
+                preview_video(f)
+            elif confirm == 'd':
+                delete_video(f, watchlist)
+                return
+            elif confirm == 'i':
+                return  # IGNORE
+            elif confirm == 's':
+                return
 
         # Clip preferences
         clip = get_clip_preferences(f.filepath)
@@ -130,8 +119,67 @@ def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploade
         clip.upload(auth_service)
         f.uploaded = True
 
-        # run other checks
-        checkup(f, watchlist, auth_service, ignore_uploaded)
+    if f.uploaded and not ignore_uploaded:
+        if f.archived:
+
+            description = """Enter if you wish to:
+- Preview: opens the video in your preferred player
+- Delete: permanently delete the video
+- Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
+- Skip: temporarily skip this video onto the next one
+
+This video has been uploaded and archived.
+            """
+            options = {"p": "preview video", "d": "delete video",
+                       'i': 'ignore video', 's': 'skip video'}
+
+            message = "Please insert the action you'd like to take: "
+            confirm = None
+            while confirm != 'd':
+                confirm = input_selection(
+                    options, message, default="s", description=description)
+
+                if confirm == 'p':
+                    preview_video(f)
+                elif confirm == 'i':
+                    return  # IGNORE
+                elif confirm == 's':
+                    return
+
+            # Delete the video
+            delete_video(f)
+        else:
+
+            description = """Enter if you wish to:
+- Archive: compress video into the ARCHIVE_FOLDER in your config
+- Delete: permanently delete the video
+- Preview: opens the video in your preferred player
+- Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
+- Skip: temporarily skip this video onto the next one
+
+This video has been uploaded.
+            """
+            options = {"a": "archive video", "d": "delete video", "p": "preview video",
+                       'i': 'ignore video', 's': 'skip video'}
+
+            message = "Please insert the action you'd like to take: "
+
+            confirm = None
+            while confirm != 'd' and confirm != 'a':
+                confirm = input_selection(
+                    options, message, default="s", description=description)
+
+                if confirm == 'p':
+                    preview_video(f)
+                elif confirm == 'i':
+                    pass  # IGNORE
+                elif confirm == 's':
+                    return
+
+            if confirm == "a":
+                archive_video(f)
+            elif confirm == "d":
+                delete_video(f, watchlist)
 
 
 if __name__ == "__main__":
