@@ -11,10 +11,11 @@ from apiclient.errors import HttpError
 
 
 class YoutubeClip():
-    def __init__(self, clip=VideoFileClip, title=DEFAULT_TITLE, description=DEFAULT_DESCRIPTION, time_from_end=None, number_of_threads=DEFAULT_NUM_THREADS, privacy_status=DEFAULT_PRIVACY_STATUS, clip_file_name=None, clip_mode=DEFAULT_CLIP_MODE):
+    def __init__(self, clip=VideoFileClip, title=DEFAULT_TITLE, description=DEFAULT_DESCRIPTION, time_from=None, number_of_threads=DEFAULT_NUM_THREADS, privacy_status=DEFAULT_PRIVACY_STATUS, clip_file_name=None, clip_mode=DEFAULT_CLIP_MODE, interval=None):
         self.title = title
         self.description = description
-        self.time_from_end = time_from_end
+        self.time_from = time_from
+        self.interval = interval
         self.number_of_threads = number_of_threads
         self.privacy_status = privacy_status
         self.clip = clip
@@ -28,13 +29,21 @@ class YoutubeClip():
 
         self.clip_mode = clip_mode
 
-        if self.clip_mode == "from_end" and self.time_from_end == None:
-            # FIXME: better exception
-            raise Exception("Invalid youtube clip instance.")
+        if self.clip_mode in "es" and self.time_from == None:
+            raise Exception(
+                "Invalid youtube clip instance (no time_from parameter given).")
+        elif self.clip_mode == 'i' and (self.interval == None or len(self.interval) != 2):
+            raise Exception(
+                "Invalid youtube clip instance (invalid interval parameter given).")
 
     def write_clip_file(self, fps=60):
-        self.clip.subclip(self.time_from_end).write_videofile(self.clip_file_name, fps=fps,
+        print(self.clip_mode)
+        if self.clip_mode in "es":
+            self.clip.subclip(self.time_from).write_videofile(self.clip_file_name, fps=fps,
                                                               threads=self.number_of_threads)
+        elif self.clip_mode == 'i':
+            self.clip.subclip(self.interval[0], self.interval[1]).write_videofile(self.clip_file_name, fps=fps,
+                                                                                  threads=self.number_of_threads)
 
     def upload(self, auth_service):
         try:
@@ -48,12 +57,16 @@ class YoutubeClip():
             ["Title", self.title],
             ["Description", self.description.encode(
                 'unicode-escape').decode()],
-            ["Time from end", self.time_from_end],
             ["Privacy Status", self.privacy_status],
             ["Num. Threads", self.number_of_threads],
             ["File Name", self.clip_file_name],
             ["Clip Mode", self.clip_mode]
         ]
+
+        if self.clip_mode in "es":
+            data.append(["Time", self.time_from])
+        elif self.clip_mode == 'i':
+            data.append(["Interval", self.interval.__str__])
 
         return tt.to_string(data, header=header)
 
@@ -92,7 +105,7 @@ class Watchlist():
                 self.add_file(f)
 
     def nonmissing_files(self):
-        return filter(lambda f: f.missing == False and f.ignored == False, self.files)
+        return filter(lambda f: f.missing == False, self.files)
 
     def add_file(self, f: WatchlistFile):
         self.files.append(f)
@@ -135,6 +148,43 @@ class Watchlist():
 
     def __len__(self):
         return len(self.files)
+
+
+def input_interval(message: str, minimum=None, maximum=None, integer=True):
+    invalid_input = True
+    while invalid_input:
+        value = input(f"[{minimum},{maximum}] " + message)
+
+        try:
+            interval = value.split(" ")
+
+            if len(interval) != 2:
+                print_error(
+                    f"Please insert a valid interval in ascending order, between {minimum} and {maximum}")
+
+            if integer:
+                interval[0] = int(interval[0])
+                interval[1] = int(interval[1])
+            else:
+                interval[0] = float(interval[0])
+                interval[1] = float(interval[1])
+        except Exception as e:
+            print_error(
+                f"Please insert a valid number between {minimum} and {maximum}.")
+        else:
+            if interval[0] < minimum or interval[0] > maximum:
+                print_error(
+                    f"Please insert valid numbers between {minimum} and {maximum}.")
+            elif interval[1] < minimum or interval[1] > maximum:
+                print_error(
+                    f"Please insert valid numbers between {minimum} and {maximum}.")
+            elif interval[0] > interval[1]:
+                print_error(
+                    f"Please insert a valid interval in ascending order, between {minimum} and {maximum}.")
+            else:
+                invalid_input = False
+                break
+    return tuple(interval)
 
 
 def input_selection(options: dict, message="Select from these options: ", description=None, default=None, error_message="Please insert from the available options."):
@@ -378,3 +428,5 @@ def preview_video(f: WatchlistFile):
 
 if __name__ == "__main__":  # DEBUG
     print(sys.platform)
+    print(input_selection({"s": "from start, e.g first 10 seconds",
+                           "e": "from end, e.g last 10 seconds", "i": "time interval"}))

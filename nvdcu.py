@@ -1,7 +1,8 @@
 import argparse
 import os
 from moviepy.editor import VideoFileClip
-from helpers import input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video, preview_video
+from numpy import minimum
+from helpers import input_interval, input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video, preview_video
 from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, SAVE_CLIPS_TO, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
 from upload import get_authenticated_service, initialize_upload
 
@@ -21,10 +22,31 @@ def get_clip_preferences(filepath: str):
     if not description:
         description = 'Default description.\n\nUploaded with nvdcu.py :)'
 
+    # get clipping mode [from (e)nd,from (s)tart,(i)nterval]
+    options = {"s": "from start, e.g first 10 seconds",
+               "e": "from end, e.g last 10 seconds", "i": "time interval"}
+    message = "Select clipping mode: "
+    mode = input_selection(
+        options=options, message=message, default='e')
+
     # get time starting from the end (last 5 seconds)
     error = f"The clip's duration is {vdf_clip.duration}s, please insert a valid float.\n"
-    time_end = -input_range(message="Time in seconds from the end: ",
-                            minimum=0, maximum=vdf_clip.duration, integer=False, errors=(None, None, error))
+    t = None
+    interval = None
+    if mode == 'e':
+        message = "Time in seconds from the end: "
+        t = -input_range(message=message,
+                         minimum=0, maximum=vdf_clip.duration, integer=False, errors=(None, None, error))
+    elif mode == 's':
+        message = "Time in seconds from the start: "
+        t = input_range(message=message,
+                        minimum=0, maximum=vdf_clip.duration, integer=False, errors=(None, None, error))
+    elif mode == 'i':
+        message = "Please input an interval (e.g 55 135):"
+        interval = input_interval(
+            message, minimum=0, maximum=vdf_clip.duration, integer=False)
+    else:
+        raise Exception(f"Invalid clip mode accepted ({mode})")
 
     # get number of threads to be used in the creation of the clip
     error = f"The maximum number of threads allowed is {MAX_THREADS}, please insert a valid integer.\n"
@@ -37,7 +59,7 @@ def get_clip_preferences(filepath: str):
     privacy_status = options[input_selection(
         options=options, message=message, default='un')]
 
-    clip = YoutubeClip(vdf_clip, title=title, description=description, time_from_end=time_end,
+    clip = YoutubeClip(vdf_clip, title=title, description=description, time_from=t, interval=interval, clip_mode=mode,
                        number_of_threads=thread_number, privacy_status=privacy_status, clip_file_name=title+".mp4")
     print(clip)
 
@@ -78,7 +100,6 @@ def archive_video(f: WatchlistFile, folder=ARCHIVE_FOLDER):
 
 
 def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploaded=False):
-    # TODO: Implement ignoring
     print_info(f"Running checkup for: {f.filename}")
 
     if not f.uploaded:
@@ -89,8 +110,7 @@ def checkup(f: WatchlistFile, watchlist: Watchlist, auth_service, ignore_uploade
 - Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
 - Skip: temporarily skip this video onto the next one
 
-Nothing has been done to this video.
-        """
+Nothing has been done to this video."""
         message = "Please insert the action you'd like to take: "
 
         options = {"u": "upload video", "p": "preview video",
@@ -129,8 +149,7 @@ Nothing has been done to this video.
 - Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
 - Skip: temporarily skip this video onto the next one
 
-This video has been uploaded and archived.
-            """
+This video has been uploaded and archived."""
             options = {"p": "preview video", "d": "delete video",
                        'i': 'ignore video', 's': 'skip video'}
 
@@ -159,8 +178,7 @@ This video has been uploaded and archived.
 - Ignore: marks the video as ignored, so it doesn't keep appearing on every script run
 - Skip: temporarily skip this video onto the next one
 
-This video has been uploaded.
-            """
+This video has been uploaded."""
             options = {"a": "archive video", "d": "delete video", "p": "preview video",
                        'i': 'ignore video', 's': 'skip video'}
 
@@ -296,6 +314,8 @@ if __name__ == "__main__":
             video_to_check = WatchlistFile(video[1])
             watchlist.add_file(video_to_check)
 
+        if video_to_check.ignored:
+            continue
         # Run checkup
         checkup(video_to_check, watchlist, auth_service, args.ignore)
 

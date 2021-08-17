@@ -66,7 +66,7 @@ def initialize_upload(youtube, clip):
             clip.clip_file_name, chunksize=-1, resumable=True)
     )
 
-    # resumable_upload(insert_request)
+    resumable_upload(insert_request)
 
 
 def resumable_upload(insert_request):
