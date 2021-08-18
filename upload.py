@@ -3,7 +3,7 @@ import httplib2
 import http.client
 import sys
 import time
-from config import CLIENT_SECRETS_FILE, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, YOUTUBE_UPLOAD_SCOPE, DEFAULT_TAGS
+from initconfig import CLIENT_SECRETS_FILE, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, YOUTUBE_UPLOAD_SCOPE, DEFAULT_TAGS
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload

@@ -1,11 +1,11 @@
 """Helper functions that can be used throughout the program."""
+from initconfig import DEFAULT_CLIP_MODE, DEFAULT_DESCRIPTION, DEFAULT_NUM_THREADS, DEFAULT_PRIVACY_STATUS, DEFAULT_TITLE, SAVE_CLIPS_TO, VIDEO_FOLDER
 import os
 import sys
 import termtables as tt
 from colorama import Fore, Back, Style
 from moviepy.editor import VideoFileClip
 from datetime import datetime
-from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, DEFAULT_PRIVACY_STATUS, DEFAULT_DESCRIPTION, DEFAULT_TITLE, SAVE_CLIPS_TO, VIDEO_FOLDER
 from upload import initialize_upload
 from apiclient.errors import HttpError
 
@@ -428,5 +428,3 @@ def preview_video(f: WatchlistFile):
 
 if __name__ == "__main__":  # DEBUG
     print(sys.platform)
-    print(input_selection({"s": "from start, e.g first 10 seconds",
-                           "e": "from end, e.g last 10 seconds", "i": "time interval"}))

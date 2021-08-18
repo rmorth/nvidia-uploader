@@ -1,10 +1,9 @@
 import argparse
 import os
 from moviepy.editor import VideoFileClip
-from numpy import minimum
-from helpers import input_interval, input_selection, input_range, input_file, YoutubeClip, current_time, print_error, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, print_warning, delete_video, preview_video
-from config import DEFAULT_CLIP_MODE, DEFAULT_NUM_THREADS, SAVE_CLIPS_TO, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
-from upload import get_authenticated_service, initialize_upload
+from initconfig import DEFAULT_NUM_THREADS, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
+from helpers import input_interval, input_selection, input_range, YoutubeClip, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, delete_video, preview_video
+from upload import get_authenticated_service
 
 MAX_THREADS = 8  # FIXME: yeet bad code
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
@@ -318,12 +317,6 @@ if __name__ == "__main__":
             continue
         # Run checkup
         checkup(video_to_check, watchlist, auth_service, args.ignore)
-
-    # yt_clip = get_clip_preferences(new_clip,clip_name = clip_name, clip_duration = clip.duration)
-    # yt_clip.write_clip_file(fps=60)
-
-    # auth_service = get_authenticated_service()
-    # yt_clip.upload(auth_service=auth_service)
 
     # Update watchlist
     write_watchlist_file(watchlist)
