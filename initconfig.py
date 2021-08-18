@@ -1,5 +1,5 @@
 import configparser
-from os.path import exists, sep
+from os.path import exists
 
 
 class Configuration():
@@ -32,13 +32,28 @@ class Configuration():
         return self.get_option(self.API_SECTION, 'youtube_api_version')
 
     def def_clip_mode(self):
-        return self.get_option(self.CLIP_SECTION, 'default_clip_mode')
+        opt = self.get_option(self.CLIP_SECTION, 'default_clip_mode')
+        if not opt in ['e', 'i', 's']:
+            raise Exception(
+                f'Invalid value ({opt}) for default_clip_mode in section {self.CLIP_SECTION} in {self.CONFIG_FILE}.')
+        return opt
 
     def def_num_threads(self):
-        return self.get_option(self.CLIP_SECTION, 'default_num_threads')
+        opt = self.get_option(self.CLIP_SECTION, 'default_num_threads')
+        try:
+            opt = int(opt)
+        except:
+            raise Exception(
+                f'Invalid value ({opt}) for default_clip_mode in section {self.CLIP_SECTION} in {self.CONFIG_FILE}.')
+        else:
+            return opt
 
     def def_privacy_status(self):
-        return self.get_option(self.CLIP_SECTION, 'default_privacy_status')
+        opt = self.get_option(self.CLIP_SECTION, 'default_privacy_status')
+        if not opt in ['unlisted', 'private', 'public']:
+            raise Exception(
+                f'Invalid value ({opt}) for default_privacy_status in section {self.CLIP_SECTION} in {self.CONFIG_FILE}.')
+        return opt
 
     def def_title(self):
         return self.get_option(self.CLIP_SECTION, 'default_title')
@@ -59,10 +74,24 @@ class Configuration():
         return self.get_option(self.DIR_SECTION, 'archive_folder', path=True)
 
     def arch_fps(self):
-        return self.get_option(self.ARCH_SECTION, 'compress_fps')
+        opt = self.get_option(self.ARCH_SECTION, 'compress_fps')
+        try:
+            opt = float(opt)
+        except:
+            raise Exception(
+                f'Invalid value ({opt}) for compress_fps in section {self.ARCH_SECTION} in {self.CONFIG_FILE}.')
+        else:
+            return opt
 
     def arch_res_height(self):
-        return self.get_option(self.ARCH_SECTION, 'compress_res_height')
+        opt = self.get_option(self.ARCH_SECTION, 'compress_res_height')
+        try:
+            opt = float(opt)
+        except:
+            raise Exception(
+                f'Invalid value ({opt}) for compress_res_height in section {self.ARCH_SECTION} in {self.CONFIG_FILE}.')
+        else:
+            return opt
 
     def get_option(self, section: str, option: str, path=False):
         if not self.config.has_option(section, option):
