@@ -396,8 +396,19 @@ def write_watchlist_file(watchlist: Watchlist):
 
 
 def get_videos_in_directory():
+    """Goes down to 2 levels recursively, since NVIDIA groups clips by game"""
     videos = []
     for folder, sub_folders, dir_files in os.walk(VIDEO_FOLDER):
+        for sub_folder in sub_folders:
+            for _, _, sub_files in os.walk(VIDEO_FOLDER + sub_folder):
+                for sub_file in sub_files:
+                    if sub_file[-4:] == '.mp4':
+                        incomplete = os.path.join(
+                            os.path.abspath(sub_folder), sub_file)
+                        filepath = os.path.join(
+                            os.path.abspath(folder), incomplete)
+                        dir_files.append((sub_file, filepath))
+
         for f in dir_files:
             if f[-4:] == '.mp4':
                 videos.append((f, os.path.join(os.path.abspath(folder), f)))
@@ -426,4 +437,4 @@ def preview_video(f: WatchlistFile):
 
 
 if __name__ == "__main__":  # DEBUG
-    print(sys.platform)
+    pass
