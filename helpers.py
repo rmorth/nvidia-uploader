@@ -410,9 +410,8 @@ def delete_video(f: WatchlistFile, watchlist: Watchlist):
     try:
         os.remove(f.filepath)
         watchlist.remove_file(f)
-    except Exception as e:
+    except:
         print_error("There was a problem deleting the video!")
-        print_error(e.message)
     else:
         print_info("Successfully deleted the video.")
 

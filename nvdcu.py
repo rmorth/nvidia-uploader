@@ -167,7 +167,7 @@ This video has been uploaded and archived."""
                     return
 
             # Delete the video
-            delete_video(f)
+            delete_video(f, watchlist)
         else:
 
             description = """Enter if you wish to:
