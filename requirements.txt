@@ -4,3 +4,9 @@ termtables
 httplib2
 google-api-python-client
 oauth2client
+multiprocessing
+os
+sys
+argparse
+configparser
+datetime
