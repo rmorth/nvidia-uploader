@@ -21,9 +21,7 @@ An option for already uploaded clips could be deletion or even archival (compres
 
 ## Problems
 
-As I went through the hoops with the Youtube API, all of the clips I uploaded through this were flagged as spam and therefore locked as private. In the beginning it didn't happen this often hence it would be a viable script, but unfortunately it happens every single upload now:
-
-<img src="C:\Users\wyllie\AppData\Roaming\Typora\typora-user-images\image-20210819162443115.png" alt="image-20210819162443115" style="zoom: 67%;" />
+As I went through the hoops with the Youtube API, all of the clips I uploaded through this were flagged as spam and therefore locked as private. In the beginning it didn't happen this often hence it would be a viable script, but unfortunately it happens every single upload now.
 
 Apparently Google's API for youtube [restricts unverified applications](https://support.google.com/youtube/answer/7300965), not stating it's without reason I was just unaware of this when I started this. I thought the only limitation was that it'd only work for, manually, whitelisted google accounts (mine) which wouldn't take away any functionality and made this a possible project.
 
