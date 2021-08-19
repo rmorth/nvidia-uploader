@@ -1,5 +1,6 @@
 import configparser
 from os.path import exists
+from multiprocessing import cpu_count
 
 
 class Configuration():
@@ -126,3 +127,6 @@ ARCHIVE_FOLDER = CONFIG.dir_archive()
 
 COMPRESS_FPS = CONFIG.arch_fps()
 COMPRESS_RES_HEIGHT = CONFIG.arch_res_height()
+
+MAX_THREADS = cpu_count()
+VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")

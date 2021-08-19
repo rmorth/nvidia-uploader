@@ -1,12 +1,9 @@
 import argparse
 import os
 from moviepy.editor import VideoFileClip
-from initconfig import DEFAULT_NUM_THREADS, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER
+from initconfig import DEFAULT_NUM_THREADS, COMPRESS_FPS, COMPRESS_RES_HEIGHT, ARCHIVE_FOLDER, MAX_THREADS, VALID_PRIVACY_STATUSES
 from helpers import input_interval, input_selection, input_range, YoutubeClip, print_info, read_watchlist_file, write_watchlist_file, Watchlist, WatchlistFile, get_videos_in_directory, delete_video, preview_video
 from upload import get_authenticated_service
-
-MAX_THREADS = 8  # FIXME: yeet bad code
-VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def get_clip_preferences(filepath: str):
@@ -210,12 +207,9 @@ if __name__ == "__main__":
         '-i', '--ignore', '--ignore-uploaded', action="store_true")
     parser.add_argument('-a', '--archive-uploaded',
                         action="store_true", help="archive uploaded videos")
-    parser.add_argument('-c', '--config', action="store_true")
     parser.add_argument('--archive-all', action="store_true",
                         help="archive every video")
     parser.add_argument('--archive-dir', help="overwrite archive directory")
-    parser.add_argument('--no-info', action="store_true",
-                        help="ommits info messages")
     parser.add_argument('-s', '--status', action="store_true",
                         help="prints watchlist status")
     parser.add_argument('--reset', action="store_true",
@@ -266,10 +260,6 @@ if __name__ == "__main__":
             exit()
 
         archive_uploaded(force=True)
-        exit()
-
-    if args.config:
-        print_info("Configuration mode...")
         exit()
 
     if args.reset:
